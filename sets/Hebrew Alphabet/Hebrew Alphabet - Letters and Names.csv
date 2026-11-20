@@ -1,0 +1,28 @@
+letter,name,sound
+א,Aleph,silent
+ב,Bet / Vet,b / v
+ג,Gimel,g (ג׳ = j)
+ד,Dalet,d
+ה,Heh,h
+ו,Vav,v (also o / u)
+ז,Zain,z (ז׳ = zh)
+ח,Khet,kh
+ט,Tet,t
+י,Yud,y
+כ,Kaf / Khaf,k / kh
+ך,Final Khaf / Khaf sofit,"kh, at the end of a word"
+ל,Lamed,l
+מ,Mem,m
+ם,Final Mem / Mem sofit,"m, at the end of a word"
+נ,Nun,n
+ן,Final Nun / Nun sofit,"n, at the end of a word"
+ס,Samekh,s
+ע,Ayin,silent
+פ,Pe / Fe,p / f
+ף,Final Fe / Fe sofit,"f, at the end of a word"
+צ,Tsadi,ts (צ׳ = ch)
+ץ,Final Tsadi / Tsadi sofit,"ts, at the end of a word"
+ק,Kuf,k
+ר,Resh,r
+ש,Shin / Sin,sh / s
+ת,Tav,t
