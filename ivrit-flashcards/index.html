@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Flashcards</title>
+<meta name="apple-mobile-web-app-title" content="Flashcards">
+<style>
+:root{
+  --bg:#f5f4f0; --card:#ffffff; --ink:#1c1c1e; --muted:#6e6e73; --line:#e4e2da;
+  --soft:#ecebe5; --accent:#2f5bea; --accent-soft:#e3e9fd; --accent-ink:#ffffff;
+  --good:#1e9e57; --good-soft:#dff3e7; --bad:#d64545; --bad-soft:#fbe3e3;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 10px 30px rgba(0,0,0,.07);
+  --r:18px;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#111113; --card:#1d1d21; --ink:#f2f2f4; --muted:#9b9ba3; --line:#2d2d33;
+    --soft:#25252b; --accent:#7391ff; --accent-soft:#232a45; --accent-ink:#0d0f17;
+    --good:#41d07f; --good-soft:#163222; --bad:#ff6d6d; --bad-soft:#3a1c1c;
+    --shadow:0 1px 2px rgba(0,0,0,.5);
+  }
+}
+/* Gveret Levin by AlefAlefAlef, SIL Open Font License 1.1 (Hebrew handwriting) */
+@font-face{font-family:"Hebrew Hand";src:url(data:font/woff2;base64,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) format("woff2");font-display:block}
+.hand{font-family:"Hebrew Hand",cursive;font-weight:400;font-size:1.3em;line-height:1.1}
+.pair{display:inline-flex;gap:.55em;align-items:baseline;direction:rtl}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
+  font-size:17px;line-height:1.35;min-height:100dvh;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-text-size-adjust:100%;
+}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+input{font:inherit;color:inherit}
+#app{max-width:560px;margin:0 auto;min-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));display:flex;flex-direction:column;padding:0 16px 20px}
+
+/* header */
+.bar{display:flex;align-items:center;gap:10px;padding:14px 0 12px;min-height:58px}
+.bar h1{font-size:28px;font-weight:700;margin:0;flex:1;letter-spacing:-.01em}
+.bar .mid{flex:1;text-align:center;font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .side{min-width:76px;display:flex}
+.bar .side.r{justify-content:flex-end;color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums}
+.link{color:var(--accent);font-weight:500;padding:8px 2px}
+.pill{background:var(--soft);padding:8px 14px;border-radius:999px;font-weight:600;font-size:15px}
+.pill.primary{background:var(--accent);color:var(--accent-ink)}
+
+/* buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border-radius:14px;font-weight:600;background:var(--soft)}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--bad)}
+.btn:disabled{opacity:.45}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+
+/* lists */
+.list{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.item{display:flex;align-items:center;gap:12px;padding:15px 16px;border-top:1px solid var(--line);width:100%;text-align:left}
+.item:first-child{border-top:0}
+.item .t{flex:1;min-width:0}
+.check{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
+.check.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.sticky{position:sticky;bottom:0;margin-top:auto;padding:16px 0 4px;background:linear-gradient(to bottom,transparent,var(--bg) 35%)}
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin:18px 2px 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sec .link{text-transform:none;letter-spacing:0;font-size:15px;padding:0}
+.grp{font-weight:600;font-size:15px;margin:14px 4px 6px}
+.bar+.sec{margin-top:4px}
+.parts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.parts span{background:var(--soft);color:var(--ink);border-radius:999px;padding:4px 10px;font-size:13px}
+.item .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .meta{color:var(--muted);font-size:14px;margin-top:2px}
+.chev{color:var(--muted);font-size:22px;line-height:1}
+
+.empty{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:22px 20px;color:var(--muted);font-size:15px}
+.empty b{color:var(--ink)}
+pre.sample{background:var(--soft);color:var(--ink);border-radius:10px;padding:10px 12px;font-size:14px;margin:10px 0 0;overflow:auto;font-family:ui-monospace,Menlo,monospace}
+.note{font-size:14px;color:var(--muted);padding:10px 4px}
+.banner{background:var(--accent-soft);border-radius:12px;padding:10px 14px;font-size:14px;margin-bottom:12px}
+
+/* set screen */
+.setname{font-size:26px;font-weight:700;margin:2px 0 4px;word-break:break-word}
+.sub{color:var(--muted);font-size:15px;margin-bottom:18px}
+.seg{display:flex;background:var(--soft);border-radius:12px;padding:3px;margin-bottom:18px}
+.seg button{flex:1;padding:9px 4px;border-radius:9px;font-size:14px;line-height:1.2;font-weight:500;color:var(--muted)}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.mode{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:16px;text-align:left;min-height:112px;display:flex;flex-direction:column;justify-content:space-between}
+.mode .ic{width:38px;height:38px;border-radius:11px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center}
+.mode .mt{font-weight:600;margin-top:10px}
+.mode .md{font-size:13px;color:var(--muted)}
+.mode:disabled{opacity:.45}
+details.words{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:14px}
+details.words summary{padding:15px 16px;font-weight:600;list-style:none;display:flex;justify-content:space-between}
+details.words summary::-webkit-details-marker{display:none}
+.wl{border-top:1px solid var(--line);max-height:50vh;overflow:auto}
+.wr{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 16px;border-top:1px solid var(--line);font-size:15px}
+.wr:first-child{border-top:0}
+.wr span{word-break:break-word}
+.wr span:last-child{color:var(--muted)}
+
+/* flashcard */
+.stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:6px 0 10px}
+.flash{width:100%;max-width:440px;height:min(56vh,440px);position:relative;touch-action:none;perspective:1400px;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .28s ease,opacity .28s ease}
+.inner{position:absolute;inset:0;transition:transform .45s cubic-bezier(.2,.75,.25,1);transform-style:preserve-3d;-webkit-transform-style:preserve-3d}
+.flash.flipped .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;background:var(--card);border-radius:24px;box-shadow:var(--shadow);border:1px solid var(--line);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px 22px;text-align:center;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.face.back{transform:rotateY(180deg)}
+.lbl{position:absolute;top:16px;left:0;right:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.hint{position:absolute;bottom:16px;left:0;right:0;font-size:13px;color:var(--muted)}
+.word{font-weight:600;word-break:break-word;max-height:100%;overflow:auto}
+.w-xl{font-size:42px;line-height:1.2}.w-l{font-size:30px;line-height:1.25}.w-m{font-size:23px;line-height:1.3}.w-s{font-size:19px;line-height:1.35}
+.cnote{margin-top:12px;color:var(--muted);font-size:16px}
+.under{text-align:center;color:var(--muted);font-size:14px;padding-bottom:6px}
+.arrows{display:flex;justify-content:center;gap:28px}
+.arrow{width:96px;height:64px;border-radius:20px;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+.arrow:active{transform:scale(.95)}
+.arrow:disabled{background:var(--soft);color:var(--muted);box-shadow:none}
+.prog{height:4px;background:var(--soft);border-radius:4px;overflow:hidden;margin-bottom:6px}
+.prog i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .3s}
+
+/* prompt box for spelling/test */
+.prompt{background:var(--card);border-radius:22px;box-shadow:var(--shadow);border:1px solid var(--line);padding:30px 20px 26px;text-align:center;position:relative;margin:8px 0 16px}
+.prompt .lbl{top:12px}
+.prompt .word{margin-top:8px}
+
+/* spelling */
+form.spell{display:flex;flex-direction:column;gap:10px}
+.field{width:100%;min-height:56px;border-radius:14px;border:2px solid var(--line);background:var(--card);padding:12px 14px;font-size:22px;outline:none;text-align:center}
+.field:focus{border-color:var(--accent)}
+.field.ok{border-color:var(--good);background:var(--good-soft)}
+.field.no{border-color:var(--bad);background:var(--bad-soft)}
+.fb{border-radius:14px;padding:12px 14px;font-size:16px;text-align:center}
+.fb.ok{background:var(--good-soft);color:var(--good);font-weight:600}
+.fb.no{background:var(--bad-soft)}
+.fb.no .h{color:var(--bad);font-weight:600}
+.fb .ans{font-size:22px;font-weight:600;margin-top:4px;color:var(--ink)}
+
+/* test */
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{background:var(--card);border:2px solid var(--line);border-radius:14px;min-height:56px;padding:12px 16px;font-size:18px;text-align:center;font-weight:500;word-break:break-word}
+.opt.ok{border-color:var(--good);background:var(--good-soft)}
+.opt.no{border-color:var(--bad);background:var(--bad-soft)}
+.opt.dim{opacity:.5}
+.tile.big,.opt.big{font-size:30px;padding:6px 10px}
+
+/* match */
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.mcol{display:flex;flex-direction:column;gap:10px}
+.tile{background:var(--card);border:2px solid var(--line);border-radius:14px;min-height:64px;padding:10px;font-size:17px;font-weight:500;
+  display:flex;align-items:center;justify-content:center;text-align:center;word-break:break-word;transition:opacity .25s,transform .25s,background .15s,border-color .15s}
+.tile.sel{border-color:var(--accent);background:var(--accent-soft)}
+.tile.ok{border-color:var(--good);background:var(--good-soft);opacity:0;transform:scale(.92);pointer-events:none}
+.tile.no{border-color:var(--bad);background:var(--bad-soft);animation:shake .35s}
+@keyframes shake{20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
+/* result */
+.result{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding:20px 0}
+.result .big{font-size:56px;font-weight:700;letter-spacing:-.02em}
+.result .rt{font-size:22px;font-weight:600}
+.result .rs{color:var(--muted)}
+.foot{display:flex;flex-direction:column;gap:10px;margin-top:auto;padding-top:14px}
+
+/* modal + toast */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;justify-content:center;z-index:50;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+.sheet{background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:520px;display:flex;flex-direction:column;gap:12px}
+.sheet h3{margin:0;font-size:19px}
+.sheet p{margin:0;color:var(--muted);font-size:15px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);
+  padding:11px 16px;border-radius:12px;font-size:15px;z-index:60;max-width:90vw;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.hidden-file{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<input id="file" class="hidden-file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain,text/tab-separated-values" multiple>
+<script>
+"use strict";
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const HEB = /[֐-׿]/;
+const CYR = /[Ѐ-ӿ]/;
+const newId = () => "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const sizeClass = t => { const n = [...String(t)].length; return n <= 12 ? "w-xl" : n <= 24 ? "w-l" : n <= 60 ? "w-m" : "w-s"; };
+const langOf = t => HEB.test(t) ? "he" : CYR.test(t) ? "uk" : "en";
+
+/* Normalise for answer checking: ignore niqqud, case, punctuation, extra spaces */
+function norm(s){
+  return String(s).normalize("NFKD")
+    .replace(/[־\-‐-―_\/]/g, " ")      // maqaf, dashes
+    .replace(/[֑-ׇ]/g, "")                  // niqqud & cantillation
+    .replace(/[̀-ͯ]/g, "")                  // latin accents
+    .toLowerCase()
+    .replace(/[.,!?;:"'`´’‘“”״׳()\[\]{}…¿¡]/g, "")
+    .replace(/\s+/g, " ").trim();
+}
+function variants(ans){
+  const out = new Set();
+  const add = s => { const n = norm(s); if (!n) return; out.add(n); if (n.startsWith("to ")) out.add(n.slice(3)); };
+  add(ans);
+  add(ans.replace(/\([^)]*\)/g, " "));                // "(to) run" -> "run"
+  add(ans.replace(/[()]/g, " "));
+  for (const part of ans.split(/[\/;,|]/)) { add(part); add(part.replace(/\([^)]*\)/g, " ")); }
+  return out;
+}
+function lev(a, b){
+  if (Math.abs(a.length - b.length) > 2) return 9;
+  const d = Array.from({length: a.length + 1}, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+    d[i][j] = Math.min(d[i-1][j] + 1, d[i][j-1] + 1, d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+function check(input, ans){
+  let u = norm(input); if (u.startsWith("to ")) u = u.slice(3);
+  if (!u) return "no";
+  const vs = variants(ans);
+  if (vs.has(u)) return "ok";
+  for (const v of vs) if (v.length > 3 && lev(u, v) === 1) return "close";
+  return "no";
+}
+
+/* ---------- CSV ---------- */
+function decode(buf){
+  try { return new TextDecoder("utf-8", {fatal: true}).decode(buf); }
+  catch { try { return new TextDecoder("windows-1255").decode(buf); } catch { return new TextDecoder().decode(buf); } }
+}
+function parseCSV(text){
+  text = text.replace(/^﻿/, "");
+  const firstLine = text.split(/\r?\n/).find(l => l.trim()) || "";
+  const counts = {",": 0, ";": 0, "\t": 0};
+  let q = false;
+  for (const ch of firstLine) { if (ch === '"') q = !q; else if (!q && ch in counts) counts[ch]++; }
+  let delim = ","; let best = 0;
+  for (const k in counts) if (counts[k] > best) { best = counts[k]; delim = k; }
+  const rows = []; let row = [], cell = "", inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQ) {
+      if (ch === '"') { if (text[i+1] === '"') { cell += '"'; i++; } else inQ = false; }
+      else cell += ch;
+    } else if (ch === '"' && cell.trim() === "") { inQ = true; cell = ""; }
+    else if (ch === delim) { row.push(cell); cell = ""; }
+    else if (ch === "\n" || ch === "\r") {
+      if (ch === "\r" && text[i+1] === "\n") i++;
+      row.push(cell); rows.push(row); row = []; cell = "";
+    } else cell += ch;
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  return rows.map(r => r.map(c => c.trim())).filter(r => r.some(c => c));
+}
+const HEADER_WORDS = new Set(["word","words","translation","translations","term","terms","definition","front","back","hebrew","english","ukrainian","russian","meaning","note","notes","question","answer","print","printed","typed","handwritten","handwriting","script","cursive","letter","letters","name","names","עברית","אנגלית","מילה","תרגום","слово","переклад","англійська","українська","іврит"]);
+function langLabel(cells){
+  let h = 0, c = 0, l = 0;
+  for (const t of cells) { if (HEB.test(t)) h++; else if (CYR.test(t)) c++; else if (/[a-z]/i.test(t)) l++; }
+  const m = Math.max(h, c, l);
+  if (!m) return "";
+  return m === h ? "Hebrew" : m === c ? "Ukrainian" : "English";
+}
+function buildSet(text, name){
+  let rows = parseCSV(text);
+  let header = null;
+  if (rows.length && rows[0].slice(0, 2).every(c => HEADER_WORDS.has(c.toLowerCase()))) header = rows.shift();
+  const cards = rows.filter(r => r.length >= 2 && r[0] && r[1])
+    .map(r => { const c = {a: r[0], b: r[1]}; if (r[2]) c.n = r.slice(2).filter(Boolean).join(" · "); return c; });
+  const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
+  let labelA = header ? cap(header[0]) : langLabel(cards.map(c => c.a));
+  let labelB = header ? cap(header[1]) : langLabel(cards.map(c => c.b));
+  if (!labelA || !labelB || labelA === labelB) { labelA = labelA || "Word"; labelB = labelB && labelB !== labelA ? labelB : "Translation"; }
+  const styleOf = h => /hand|script|cursive/i.test(h) ? "hand" : /^letters?$/i.test(h.trim()) ? "both" : "text";
+  const set = {name: name || "New set", cards, labelA, labelB, created: Date.now()};
+  if (header) { set.styleA = styleOf(header[0]); set.styleB = styleOf(header[1]); }
+  return set;
+}
+
+/* ---------- settings ----------
+   On GitHub Pages the app finds the repository from the page address
+   (owner.github.io/repo/). Fill in OWNER and REPO only if you use a custom domain. */
+const CONFIG = { owner: "", repo: "", folder: "sets" };
+
+/* ---------- storage ----------
+   Shared sets: every .csv / .tsv / .txt file in the repository's "sets" folder
+   (subfolders become groups). Read-only in the app; edit them on GitHub.
+   My sets: added with "+ Add CSV", kept in this browser on this device. */
+const LS_LOCAL = "flashcards.sets.v1", LS_REMOTE = "flashcards.remote.v1";
+const natural = (x, y) => x.localeCompare(y, undefined, {numeric: true, sensitivity: "base"});
+const encPath = p => p.split("/").map(encodeURIComponent).join("/");
+function repoInfo(){
+  if (CONFIG.owner && CONFIG.repo) return {owner: CONFIG.owner, repo: CONFIG.repo};
+  const m = location.hostname.match(/^([^.]+)\.github\.io$/i);
+  if (!m) return null;
+  const seg = location.pathname.split("/").filter(Boolean)[0];
+  return {owner: m[1], repo: seg && !/\.html?$/i.test(seg) ? seg : `${m[1]}.github.io`};
+}
+async function listRemote(){
+  const info = repoInfo();
+  if (info) {
+    const api = `https://api.github.com/repos/${info.owner}/${info.repo}/contents/`;
+    const walk = async (path, depth) => {
+      const r = await fetch(api + encPath(path), {cache: "no-store"});
+      if (!r.ok) throw new Error("GitHub answered " + r.status);
+      let out = [];
+      for (const it of await r.json()) {
+        if (it.type === "file" && /\.(csv|tsv|txt)$/i.test(it.name)) out.push({path: it.path, url: it.download_url || encPath(it.path)});
+        else if (it.type === "dir" && depth < 3) out = out.concat(await walk(it.path, depth + 1));
+      }
+      return out;
+    };
+    return await walk(CONFIG.folder, 0);
+  }
+  /* Not on github.io (e.g. testing on your own computer): use sets/index.json, a list of file paths inside "sets". */
+  const r = await fetch(CONFIG.folder + "/index.json", {cache: "no-store"});
+  if (!r.ok) throw new Error("no index");
+  return (await r.json()).map(f => ({path: CONFIG.folder + "/" + f, url: encPath(CONFIG.folder + "/" + f)}));
+}
+const Store = {
+  mode: "loading", sets: [], local: [], remote: [], note: "", busy: false,
+  async init(){
+    try { this.local = JSON.parse(localStorage.getItem(LS_LOCAL) || "[]"); } catch { this.local = []; }
+    try { this.remote = JSON.parse(localStorage.getItem(LS_REMOTE) || "[]"); } catch { this.remote = []; }
+    this.mode = "local"; this.merge(); render();
+    await this.refresh();
+  },
+  merge(){
+    this.local.sort((x, y) => (y.created || 0) - (x.created || 0));
+    this.remote.sort((x, y) => natural(x.group || "", y.group || "") || natural(x.name, y.name));
+    this.sets = [...this.remote, ...this.local];
+  },
+  async refresh(){
+    if (this.busy) return;
+    this.busy = true; this.note = ""; if (S.screen === "home") render();
+    try {
+      const files = await listRemote();
+      const loaded = [];
+      await Promise.all(files.map(async f => {
+        try {
+          const r = await fetch(f.url, {cache: "no-store"});
+          if (!r.ok) return;
+          const parts = f.path.split("/").slice(1);
+          const set = buildSet(decode(await r.arrayBuffer()), parts[parts.length - 1].replace(/\.(csv|tsv|txt)$/i, "").trim());
+          if (!set.cards.length) return;
+          set.id = "gh:" + f.path; set.remote = true; set.group = parts.slice(0, -1).join(" / ");
+          loaded.push(set);
+        } catch {}
+      }));
+      if (files.length && !loaded.length) throw new Error("no sets loaded");
+      this.remote = loaded;
+      try { localStorage.setItem(LS_REMOTE, JSON.stringify(loaded)); } catch {}
+    } catch (e) {
+      this.note = this.remote.length
+        ? "Couldn't check GitHub for changes right now. Showing the sets loaded last time."
+        : (repoInfo() ? "Couldn't load the shared sets from GitHub. Check your connection and tap Refresh." : "");
+    }
+    this.busy = false; this.merge();
+    if (S.screen === "set" && !curSet()) S.screen = "home";
+    if (S.screen === "home" || S.screen === "set") render();
+  },
+  saveLocal(){ try { localStorage.setItem(LS_LOCAL, JSON.stringify(this.local)); } catch { throw {code: "quota"}; } },
+  get(id){ return this.sets.find(s => s.id === id); },
+  async add(set){
+    const id = newId();
+    this.local.unshift({id, ...set}); this.saveLocal(); this.merge();
+    return id;
+  },
+  async remove(id){ this.local = this.local.filter(s => s.id !== id); this.saveLocal(); this.merge(); },
+  async rename(id, name){ const s = this.local.find(x => x.id === id); if (s) s.name = name; this.saveLocal(); this.merge(); }
+};
+function dbError(e){
+  if (e && e.code === "quota") return "This device's browser storage is full. Delete a set and try again.";
+  return "Couldn't save on this device.";
+}
+
+/* ---------- state ---------- */
+const S = { screen: "home", setId: null, dir: "ab", sess: null, modal: null, result: null, sel: null, combo: null };
+const COMBO = "__combo";
+const curSet = () => S.setId === COMBO ? S.combo : Store.get(S.setId);
+function buildCombo(ids){
+  const sets = ids.map(id => Store.get(id)).filter(Boolean);
+  const seen = new Set(), cards = [];
+  for (const st of sets) for (const c of st.cards) {
+    const k = norm(c.a) + "|" + norm(c.b);
+    if (seen.has(k)) continue;
+    seen.add(k); cards.push({...c, la: st.labelA, lb: st.labelB, sa: st.styleA || "text", sb: st.styleB || "text"});
+  }
+  const uniq = arr => [...new Set(arr)].join(" / ");
+  return {id: COMBO, name: "Combined practice", cards, labelA: uniq(sets.map(x => x.labelA)), labelB: uniq(sets.map(x => x.labelB)), parts: sets.map(x => x.name)};
+}
+const dirOf = c => (c && c.d) || S.dir;        // "ab", "ba"; with "mix" each card carries its own d
+const ansIn = (c, d) => d === "ab" ? c.b : c.a;
+const P = c => dirOf(c) === "ab" ? c.a : c.b;  // prompt side
+const A = c => dirOf(c) === "ab" ? c.b : c.a;  // answer side
+const labP = (s, c) => dirOf(c) === "ab" ? (c.la || s.labelA) : (c.lb || s.labelB);
+const labA = (s, c) => dirOf(c) === "ab" ? (c.lb || s.labelB) : (c.la || s.labelA);
+const stP = (s, c) => (dirOf(c) === "ab" ? (c.sa || s.styleA) : (c.sb || s.styleB)) || "text";
+const stA = (s, c) => (dirOf(c) === "ab" ? (c.sb || s.styleB) : (c.sa || s.styleA)) || "text";
+/* render card text: plain, handwritten, or printed + handwritten side by side */
+const fmt = (t, st) => st === "hand" ? `<span class="hand">${esc(t)}</span>`
+  : st === "both" ? `<span class="pair"><span>${esc(t)}</span><span class="hand">${esc(t)}</span></span>` : esc(t);
+const cardsOf = s => s.cards.map(c => {
+  const x = {...c};
+  if (S.dir === "mix") x.d = Math.random() < 0.5 ? "ab" : "ba";
+  return x;
+});
+
+let toastTimer = null;
+function toast(msg){
+  let t = $(".toast"); if (!t) { t = document.createElement("div"); t.className = "toast"; document.body.appendChild(t); }
+  t.textContent = msg; clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.remove(), 2600);
+}
+
+/* ---------- icons ---------- */
+const IC = {
+  cards: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="14" height="14" rx="3"/><path d="M7 2h11a3 3 0 0 1 3 3v11"/></svg>',
+  match: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h11l-3-3M20 17H9l3 3"/></svg>',
+  spell: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
+  left: '<svg width="44" height="44" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 12l8.5-8v5H21v6h-9.5v5z"/></svg>',
+  right: '<svg width="44" height="44" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M21 12l-8.5-8v5H3v6h9.5v5z"/></svg>',
+  test: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12l3 3 5-6"/></svg>'
+};
+const MODE_NAMES = {cards: "Cards", match: "Matching", spell: "Spelling", test: "Test"};
+
+/* ---------- render ---------- */
+function render(){
+  const app = $("#app");
+  const v = ({home: vHome, set: vSet, cards: vCards, match: vMatch, spell: vSpell, test: vTest, result: vResult})[S.screen];
+  app.innerHTML = v() + vModal();
+  after();
+}
+function bar(left, mid, right){ return `<div class="bar"><div class="side">${left}</div><div class="mid">${mid}</div><div class="side r">${right}</div></div>`; }
+const finishBtn = () => `<button class="pill" data-act="finish">Finish</button>`;
+
+function setItem(s){
+  const on = S.sel && S.sel.has(s.id);
+  return `<button class="item" data-act="${S.sel ? "toggleSel" : "open"}" data-id="${esc(s.id)}">
+    ${S.sel ? `<span class="check${on ? " on" : ""}">${on ? "✓" : ""}</span>` : ""}
+    <div class="t"><div class="name" dir="auto">${esc(s.name)}</div><div class="meta">${s.cards.length} cards · ${esc(s.labelA)} – ${esc(s.labelB)}</div></div>
+    ${S.sel ? "" : `<span class="chev">›</span>`}</button>`;
+}
+function vHome(){
+  const groups = [];
+  for (const s of Store.remote) {
+    let g = groups.find(x => x.name === (s.group || ""));
+    if (!g) groups.push(g = {name: s.group || "", sets: []});
+    g.sets.push(s);
+  }
+  let shared = "";
+  if (Store.remote.length || repoInfo()) {
+    shared = `<div class="sec"><span>Shared sets</span>${S.sel ? "" : `<button class="link" data-act="refresh" ${Store.busy ? "disabled" : ""}>${Store.busy ? "Loading…" : "Refresh"}</button>`}</div>`;
+    if (Store.note) shared += `<div class="banner">${esc(Store.note)}</div>`;
+    if (!Store.remote.length && Store.busy) shared += `<div class="note">Loading the sets from GitHub…</div>`;
+    else if (!Store.remote.length && !Store.note) shared += `<div class="note">No CSV files in the repository's “${esc(CONFIG.folder)}” folder yet.</div>`;
+    for (const g of groups) shared += `${g.name ? `<div class="grp" dir="auto">${esc(g.name)}</div>` : ""}<div class="list">${g.sets.map(setItem).join("")}</div>`;
+  }
+  let mine = "";
+  if (Store.local.length) mine = `<div class="sec"><span>My sets · this device only</span></div><div class="list">${Store.local.map(setItem).join("")}</div>`;
+  else if (!S.sel) mine = `<div class="sec"><span>My sets · this device only</span></div>
+    <div class="empty">Tap <b>+ Add CSV</b> to add your own set. It stays in this browser only. Each line is one card: the word, a comma, then the translation; a third column is optional and shows as a note.
+    <pre class="sample">שָׁלוֹם,hello
+תּוֹדָה,thank you
+לִלְמוֹד,to learn,ללמוד</pre></div>`;
+  const body = shared + mine;
+  if (S.sel) {
+    const ids = Store.sets.filter(x => S.sel.has(x.id)).map(x => x.id);
+    const count = ids.length ? buildCombo(ids).cards.length : 0;
+    return `<div class="bar"><h1>Combine sets</h1><button class="link" data-act="combineCancel">Cancel</button></div>
+      <div class="note" style="padding-top:0">Choose two or more sets to practise together.</div>${body}
+      <div class="sticky"><button class="btn primary" data-act="combineGo" ${ids.length < 2 ? "disabled" : ""}>${ids.length < 2 ? "Select at least 2 sets" : `Practise together · ${count} cards`}</button></div>`;
+  }
+  return `<div class="bar"><h1>Flashcards</h1>${Store.sets.length >= 2 ? `<button class="pill" data-act="combineStart">Combine</button>` : ""}<button class="pill primary" data-act="import">+ Add CSV</button></div>${body}`;
+}
+
+function vSet(){
+  const s = curSet(); if (!s) { S.screen = "home"; return vHome(); }
+  const n = s.cards.length;
+  const distinctIn = d => new Set(s.cards.map(c => norm(ansIn(c, d)))).size;
+  const distinct = S.dir === "mix" ? Math.min(distinctIn("ab"), distinctIn("ba")) : distinctIn(S.dir);
+  const mode = (k, d, ok, why) => `<button class="mode" data-act="start" data-mode="${k}" ${ok ? "" : "disabled"}>
+      <span class="ic">${IC[k]}</span><span><div class="mt">${MODE_NAMES[k]}</div><div class="md">${ok ? d : why}</div></span></button>`;
+  const isCombo = s.id === COMBO, ro = isCombo || s.remote;
+  return `${bar(`<button class="link" data-act="home">‹ Sets</button>`, "", ro ? "" : `<button class="link" data-act="rename">Rename</button>`)}
+    <div class="setname" dir="auto">${esc(s.name)}</div>
+    <div class="sub">${n} cards${s.remote ? ` · shared${s.group ? ` · ${esc(s.group)}` : ""}` : ""}${isCombo ? ` from ${s.parts.length} sets:<div class="parts">${s.parts.map(x => `<span dir="auto">${esc(x)}</span>`).join("")}</div>` : ""}</div>
+    <div class="seg">
+      <button class="${S.dir === "ab" ? "on" : ""}" data-act="dir" data-dir="ab">${esc(s.labelA)} → ${esc(s.labelB)}</button>
+      <button class="${S.dir === "ba" ? "on" : ""}" data-act="dir" data-dir="ba">${esc(s.labelB)} → ${esc(s.labelA)}</button>
+      <button class="${S.dir === "mix" ? "on" : ""}" data-act="dir" data-dir="mix">Both ways</button>
+    </div>
+    <div class="modes">
+      ${mode("cards", "Flip and swipe", n >= 1, "")}
+      ${mode("match", "Pair words up", n >= 2, "Needs 2+ cards")}
+      ${mode("spell", "Type the translation", n >= 1, "")}
+      ${mode("test", "Pick from four", distinct >= 4, "Needs 4+ different translations")}
+    </div>
+    <details class="words"><summary><span>All words</span><span class="chev">›</span></summary>
+      <div class="wl">${s.cards.map(c => `<div class="wr"><span dir="auto">${fmt(c.a, c.sa || s.styleA)}</span><span dir="auto">${fmt(c.b, c.sb || s.styleB)}${c.n ? `<br><small>${esc(c.n)}</small>` : ""}</span></div>`).join("")}</div>
+    </details>
+    ${ro ? "" : `<button class="btn danger" data-act="askDelete">Delete set</button>`}`;
+}
+
+/* Cards */
+function vCards(){
+  const s = S.sess, c = s.order[s.i], set = curSet();
+  const pw = P(c), aw = A(c);
+  return `${bar(finishBtn(), "Cards", `${s.i + 1} / ${s.order.length}`)}
+    <div class="prog"><i style="width:${(s.i / s.order.length) * 100}%"></i></div>
+    <div class="stage"><div class="flash${s.flipped ? " flipped" : ""}" id="flash"><div class="inner">
+      <div class="face front"><div class="lbl">${esc(labP(set, c))}</div><div class="word ${sizeClass(pw)}" dir="auto" lang="${langOf(pw)}">${fmt(pw, stP(set, c))}</div><div class="hint">Tap to check</div></div>
+      <div class="face back"><div class="lbl">${esc(labA(set, c))}</div><div class="word ${sizeClass(aw)}" dir="auto" lang="${langOf(aw)}">${fmt(aw, stA(set, c))}</div>
+        ${c.n ? `<div class="cnote" dir="auto">${esc(c.n)}</div>` : ""}<div class="hint">Swipe for the next card</div></div>
+    </div></div>
+    <div class="arrows">
+      <button class="arrow" data-act="cardPrev" aria-label="Previous card" ${s.i === 0 ? "disabled" : ""}>${IC.left}</button>
+      <button class="arrow" data-act="cardNext" aria-label="Next card">${IC.right}</button>
+    </div></div>`;
+}
+function bindSwipe(){
+  const el = $("#flash"); if (!el) return;
+  let sx = 0, sy = 0, dx = 0, down = false;
+  el.addEventListener("pointerdown", e => { down = true; sx = e.clientX; sy = e.clientY; dx = 0; el.style.transition = "none"; try { el.setPointerCapture(e.pointerId); } catch {} });
+  el.addEventListener("pointermove", e => { if (!down) return; dx = e.clientX - sx; el.style.transform = `translateX(${dx}px) rotate(${dx / 18}deg)`; });
+  const end = (e, cancel) => {
+    if (!down) return; down = false; el.style.transition = "";
+    if (!cancel && Math.abs(dx) > 70) { flyOut(el, dx > 0 ? 1 : -1); return; }
+    el.style.transform = "";
+    if (!cancel && Math.abs(dx) < 8 && Math.abs(e.clientY - sy) < 8) { S.sess.flipped = !S.sess.flipped; el.classList.toggle("flipped", S.sess.flipped); }
+  };
+  el.addEventListener("pointerup", e => end(e, false));
+  el.addEventListener("pointercancel", e => end(e, true));
+}
+function flyOut(el, dir){
+  if (!el || S.sess.busy) return;
+  S.sess.busy = true;
+  el.style.transform = `translateX(${dir * (window.innerWidth + 200)}px) rotate(${dir * 24}deg)`; el.style.opacity = "0";
+  setTimeout(() => {
+    const s = S.sess; s.i++; s.flipped = false; s.busy = false;
+    if (s.i >= s.order.length) showResult({mode: "cards", big: "✓", title: "All cards done", sub: `You went through all ${s.order.length} cards.`});
+    else render();
+  }, 230);
+}
+
+/* Matching */
+const MATCH_N = 5;
+function matchRound(){
+  const s = S.sess;
+  const round = s.pool.slice(s.pos, s.pos + MATCH_N); s.pos += round.length;
+  const set = curSet();
+  s.left = shuffle(round.map(c => ({t: P(c), st: stP(set, c), k: norm(A(c)), done: false})));
+  s.right = shuffle(round.map(c => ({t: A(c), st: stA(set, c), k: norm(A(c)), done: false})));
+  s.sel = null; s.bad = null;
+}
+function vMatch(){
+  const s = S.sess;
+  const tile = (side, x, i) => {
+    const cls = x.done ? " ok" : (s.sel && s.sel.side === side && s.sel.i === i) ? " sel" : (s.bad && s.bad[side] === i) ? " no" : "";
+    return `<button class="tile${cls}${[...x.t].length <= 2 ? " big" : ""}" data-act="pick" data-side="${side}" data-i="${i}" dir="auto" lang="${langOf(x.t)}">${fmt(x.t, x.st)}</button>`;
+  };
+  return `${bar(finishBtn(), "Matching", `${s.matched} / ${s.pool.length}`)}
+    <div class="prog"><i style="width:${(s.matched / s.pool.length) * 100}%"></i></div>
+    <div class="note" style="text-align:center">Tap a word, then its translation.</div>
+    <div class="mgrid"><div class="mcol">${s.left.map((x, i) => tile("L", x, i)).join("")}</div>
+    <div class="mcol">${s.right.map((x, i) => tile("R", x, i)).join("")}</div></div>`;
+}
+function pick(side, i){
+  const s = S.sess, list = side === "L" ? s.left : s.right;
+  if (list[i].done || s.lock) return;
+  s.bad = null;
+  if (!s.sel || s.sel.side === side) { s.sel = (s.sel && s.sel.side === side && s.sel.i === i) ? null : {side, i}; render(); return; }
+  const L = side === "L" ? i : s.sel.i, R = side === "R" ? i : s.sel.i;
+  s.sel = null;
+  if (s.left[L].k === s.right[R].k) {
+    s.left[L].done = s.right[R].done = true; s.matched++;
+    render();
+    if (s.left.every(x => x.done)) {
+      s.lock = true;
+      setTimeout(() => {
+        s.lock = false;
+        if (s.pos >= s.pool.length) {
+          const secs = Math.round((Date.now() - s.t0) / 1000);
+          showResult({mode: "match", big: s.mistakes === 0 ? "✓" : String(s.mistakes), title: s.mistakes === 0 ? "No mistakes" : (s.mistakes === 1 ? "mistake" : "mistakes"),
+            sub: `${s.pool.length} pairs matched in ${secs < 60 ? secs + " s" : Math.floor(secs / 60) + " min " + (secs % 60) + " s"}.`});
+        } else { matchRound(); render(); }
+      }, 420);
+    }
+  } else {
+    s.mistakes++; s.bad = {L, R}; render();
+    setTimeout(() => { if (S.sess === s && s.bad && s.bad.L === L && s.bad.R === R) { s.bad = null; render(); } }, 500);
+  }
+}
+
+/* Spelling */
+function vSpell(){
+  const s = S.sess, q = s.queue[s.i], set = curSet(), pw = P(q.c), aw = A(q.c);
+  const answered = s.state !== "ask";
+  const fb = s.state === "ok" ? `<div class="fb ok">Correct!${q.c.n ? `<div class="cnote" dir="auto">${esc(q.c.n)}</div>` : ""}</div>`
+    : s.state === "close" ? `<div class="fb no"><div class="h">Almost — check the spelling</div><div class="ans" dir="auto" lang="${langOf(aw)}">${fmt(aw, stA(set, q.c))}</div></div>`
+    : s.state === "no" ? `<div class="fb no"><div class="h">${s.revealed ? "The answer is" : "Not quite. The answer is"}</div><div class="ans" dir="auto" lang="${langOf(aw)}">${fmt(aw, stA(set, q.c))}</div>${q.c.n ? `<div class="cnote" dir="auto">${esc(q.c.n)}</div>` : ""}</div>` : "";
+  const cls = s.state === "ok" ? " ok" : (s.state === "no" || s.state === "close") ? " no" : "";
+  return `${bar(finishBtn(), "Spelling", `${Math.min(s.done + 1, s.total)} / ${s.total}`)}
+    <div class="prog"><i style="width:${(s.done / s.total) * 100}%"></i></div>
+    <div class="prompt"><div class="lbl">${esc(labP(set, q.c))}</div><div class="word ${sizeClass(pw)}" dir="auto" lang="${langOf(pw)}">${fmt(pw, stP(set, q.c))}</div></div>
+    <form class="spell" id="spellForm">
+      <input id="ans" class="field${cls}" type="text" dir="auto" lang="${langOf(aw)}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        placeholder="Type in ${esc(labA(set, q.c))}" value="${esc(s.input)}" ${answered ? "readonly" : ""}>
+      ${fb}
+      ${answered ? `<button class="btn primary" type="submit">Next</button>`
+        : `<button class="btn primary" type="submit">Check</button><button class="btn" type="button" data-act="reveal">Show answer</button>`}
+    </form>
+    ${q.retry && !answered ? `<div class="note" style="text-align:center">You missed this one earlier.</div>` : ""}`;
+}
+function spellSubmit(){
+  const s = S.sess, q = s.queue[s.i];
+  if (s.state === "ask") {
+    const v = $("#ans").value; s.input = v;
+    if (!v.trim()) { $("#ans").focus(); return; }
+    s.state = check(v, A(q.c));
+    if (s.state !== "ok" && !q.retry) s.queue.push({c: q.c, retry: true});
+    if (!q.retry) { if (s.state === "ok") s.first++; s.done++; }
+    render();
+  } else spellNext();
+}
+function spellNext(){
+  const s = S.sess; s.i++; s.state = "ask"; s.input = ""; s.revealed = false;
+  if (s.i >= s.queue.length) {
+    showResult({mode: "spell", big: `${s.first}/${s.total}`, title: "right on the first try", sub: s.first === s.total ? "Perfect spelling." : "Missed words came back once more at the end."});
+  } else { render(); const a = $("#ans"); if (a) a.focus(); }
+}
+
+/* Test */
+function testQuestion(){
+  const s = S.sess, c = s.order[s.i], right = A(c), rk = norm(right);
+  const seen = new Set([rk]), wrong = [], heb = HEB.test(right);
+  const pool = shuffle(s.all).map(x => ansIn(x, dirOf(c)));
+  for (const pass of [true, false]) for (const t of pool) {   // prefer options in the same script as the answer
+    if (wrong.length === 3) break;
+    const k = norm(t);
+    if (seen.has(k) || (pass && HEB.test(t) !== heb)) continue;
+    seen.add(k); wrong.push(t);
+  }
+  s.opts = shuffle([right, ...wrong]); s.correct = s.opts.indexOf(right); s.chosen = null;
+}
+function vTest(){
+  const s = S.sess, c = s.order[s.i], set = curSet(), pw = P(c);
+  const opt = (t, i) => {
+    let cls = "";
+    if (s.chosen !== null) cls = i === s.correct ? " ok" : i === s.chosen ? " no" : " dim";
+    return `<button class="opt${cls}${[...t].length <= 2 ? " big" : ""}" data-act="choose" data-i="${i}" dir="auto" lang="${langOf(t)}">${fmt(t, stA(set, c))}</button>`;
+  };
+  const after = s.chosen !== null && s.chosen !== s.correct;
+  return `${bar(finishBtn(), "Test", `${s.i + 1} / ${s.order.length}`)}
+    <div class="prog"><i style="width:${(s.i / s.order.length) * 100}%"></i></div>
+    <div class="prompt"><div class="lbl">${esc(labP(set, c))}</div><div class="word ${sizeClass(pw)}" dir="auto" lang="${langOf(pw)}">${fmt(pw, stP(set, c))}</div>
+      ${s.chosen !== null && c.n ? `<div class="cnote" dir="auto">${esc(c.n)}</div>` : ""}</div>
+    <div class="opts">${s.opts.map(opt).join("")}</div>
+    ${after ? `<div class="foot" style="margin-top:0"><button class="btn primary" data-act="testNext">Next</button></div>` : ""}`;
+}
+function choose(i){
+  const s = S.sess; if (s.chosen !== null) return;
+  s.chosen = i; if (i === s.correct) s.score++;
+  render();
+  if (i === s.correct) { const me = s; setTimeout(() => { if (S.sess === me && S.screen === "test") testNext(); }, 650); }
+}
+function testNext(){
+  const s = S.sess; s.i++;
+  if (s.i >= s.order.length) {
+    const pct = Math.round(100 * s.score / s.order.length);
+    showResult({mode: "test", big: pct + "%", title: `${s.score} of ${s.order.length} correct`, sub: pct === 100 ? "Perfect score." : ""});
+  } else { testQuestion(); render(); }
+}
+
+/* Result */
+function showResult(r){ S.result = r; S.screen = "result"; S.sess = null; render(); }
+function vResult(){
+  const r = S.result;
+  return `${bar("", MODE_NAMES[r.mode], "")}
+    <div class="result"><div class="big">${esc(r.big)}</div><div class="rt">${esc(r.title)}</div><div class="rs">${esc(r.sub)}</div></div>
+    <div class="foot"><button class="btn primary" data-act="start" data-mode="${r.mode}">Again</button><button class="btn" data-act="finish">Back to set</button></div>`;
+}
+
+/* Modal */
+function vModal(){
+  const m = S.modal; if (!m) return "";
+  if (m.type === "delete") return `<div class="scrim" data-act="closeModal"><div class="sheet" data-stop="1">
+      <h3>Delete “${esc(curSet()?.name)}”?</h3><p>The set and its cards will be removed. You can add the CSV again later.</p>
+      <div class="row"><button class="btn" data-act="closeModal">Cancel</button><button class="btn primary" style="background:var(--bad);color:#fff" data-act="doDelete">Delete</button></div></div></div>`;
+  if (m.type === "rename") return `<div class="scrim" data-act="closeModal"><div class="sheet" data-stop="1">
+      <h3>Rename set</h3><form id="renameForm"><input id="newName" class="field" style="font-size:18px;text-align:start" dir="auto" value="${esc(curSet()?.name)}" maxlength="80"></form>
+      <div class="row"><button class="btn" data-act="closeModal">Cancel</button><button class="btn primary" data-act="doRename">Save</button></div></div></div>`;
+  return "";
+}
+
+/* ---------- after render ---------- */
+function after(){
+  if (S.screen === "cards") bindSwipe();
+  const sf = $("#spellForm"); if (sf) sf.onsubmit = e => { e.preventDefault(); spellSubmit(); };
+  const rf = $("#renameForm"); if (rf) { rf.onsubmit = e => { e.preventDefault(); doRename(); }; }
+}
+
+/* ---------- actions ---------- */
+function start(mode){
+  const set = curSet(); if (!set) return;
+  const cards = cardsOf(set);
+  if (mode === "cards") S.sess = {order: shuffle(cards), i: 0, flipped: false};
+  if (mode === "match") { S.sess = {pool: shuffle(cards), pos: 0, matched: 0, mistakes: 0, t0: Date.now()}; S.screen = "match"; matchRound(); }
+  if (mode === "spell") S.sess = {queue: shuffle(cards).map(c => ({c, retry: false})), i: 0, state: "ask", input: "", first: 0, done: 0, total: cards.length};
+  if (mode === "test") { S.sess = {order: shuffle(cards), all: cards, i: 0, score: 0}; S.screen = "test"; testQuestion(); }
+  S.screen = mode; render();
+  if (mode === "spell") { const a = $("#ans"); if (a) a.focus(); }
+  window.scrollTo(0, 0);
+}
+async function doDelete(){
+  const id = S.setId; S.modal = null;
+  try { await Store.remove(id); S.screen = "home"; S.setId = null; toast("Set deleted"); } catch (e) { toast(dbError(e)); }
+  render();
+}
+async function doRename(){
+  const v = ($("#newName")?.value || "").trim(); if (!v) return;
+  S.modal = null; render();
+  try { await Store.rename(S.setId, v); } catch (e) { toast(dbError(e)); }
+  render();
+}
+async function importFiles(files){
+  for (const f of files) {
+    try {
+      const text = decode(await f.arrayBuffer());
+      const set = buildSet(text, f.name.replace(/\.(csv|tsv|txt)$/i, "").trim());
+      if (!set.cards.length) { toast(`No cards found in ${f.name}`); continue; }
+      if (new Blob([JSON.stringify(set)]).size > 240000) { toast(`${f.name} is too large. Split it into smaller files.`); continue; }
+      await Store.add(set);
+      toast(`Added “${set.name}” · ${set.cards.length} cards`);
+    } catch (e) { toast(dbError(e)); }
+  }
+  render();
+}
+
+const ACT = {
+  import: () => { const f = $("#file"); f.value = ""; f.click(); },
+  refresh: () => Store.refresh(),
+  combineStart: () => { S.sel = new Set(); render(); window.scrollTo(0, 0); },
+  combineCancel: () => { S.sel = null; render(); },
+  toggleSel: el => { const id = el.dataset.id; S.sel.has(id) ? S.sel.delete(id) : S.sel.add(id); render(); },
+  combineGo: () => {
+    const ids = Store.sets.filter(x => S.sel.has(x.id)).map(x => x.id);
+    if (ids.length < 2) return;
+    S.combo = buildCombo(ids); S.setId = COMBO; S.sel = null; S.screen = "set"; render(); window.scrollTo(0, 0);
+  },
+  open: el => { S.setId = el.dataset.id; S.screen = "set"; render(); window.scrollTo(0, 0); },
+  home: () => { S.screen = "home"; render(); },
+  dir: el => { S.dir = el.dataset.dir; render(); },
+  start: el => start(el.dataset.mode),
+  finish: () => { S.sess = null; S.screen = curSet() ? "set" : "home"; render(); window.scrollTo(0, 0); },
+  cardNext: () => flyOut($("#flash"), -1),
+  cardPrev: () => { const s = S.sess; if (s.busy || s.i === 0) return; s.i--; s.flipped = false; render(); },
+  pick: el => pick(el.dataset.side, +el.dataset.i),
+  reveal: () => {
+    const s = S.sess, q = s.queue[s.i];
+    s.state = "no"; s.revealed = true; s.input = $("#ans").value;
+    if (!q.retry) { s.queue.push({c: q.c, retry: true}); s.done++; }
+    render();
+  },
+  choose: el => choose(+el.dataset.i),
+  testNext: () => testNext(),
+  askDelete: () => { S.modal = {type: "delete"}; render(); },
+  rename: () => { S.modal = {type: "rename"}; render(); const i = $("#newName"); if (i) { i.focus(); i.select(); } },
+  closeModal: (el, e) => { if (e.target.closest("[data-stop]") && el.classList.contains("scrim")) return; S.modal = null; render(); },
+  doDelete: () => doDelete(),
+  doRename: () => doRename()
+};
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-act]"); if (!el || el.disabled) return;
+  const fn = ACT[el.dataset.act]; if (fn) fn(el, e);
+});
+$("#file").addEventListener("change", e => { const fs = [...e.target.files]; if (fs.length) importFiles(fs); });
+
+render();
+Store.init();
+</script>
+</body>
+</html>
