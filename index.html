@@ -282,8 +282,8 @@ function buildSet(text, name){
 
 /* ---------- settings ----------
    On GitHub Pages the app finds the repository from the page address
-   (owner.github.io/repo/). Fill in OWNER and REPO only if you use a custom domain. */
-const CONFIG = { owner: "", repo: "", folder: "sets" };
+   (owner.github.io/repo/). Fill in owner and repo only if you use a custom domain; branch only if it is not main or master. */
+const CONFIG = { owner: "", repo: "", branch: "", folder: "sets" };
 
 /* ---------- storage ----------
    Shared sets: every .csv / .tsv / .txt file in the repository's "sets" folder
@@ -299,26 +299,40 @@ function repoInfo(){
   const seg = location.pathname.split("/").filter(Boolean)[0];
   return {owner: m[1], repo: seg && !/\.html?$/i.test(seg) ? seg : `${m[1]}.github.io`};
 }
-async function listRemote(){
-  const info = repoInfo();
-  if (info) {
-    const api = `https://api.github.com/repos/${info.owner}/${info.repo}/contents/`;
-    const walk = async (path, depth) => {
-      const r = await fetch(api + encPath(path), {cache: "no-store"});
-      if (!r.ok) throw new Error("GitHub answered " + r.status);
-      let out = [];
-      for (const it of await r.json()) {
-        if (it.type === "file" && /\.(csv|tsv|txt)$/i.test(it.name)) out.push({path: it.path, url: it.download_url || encPath(it.path)});
-        else if (it.type === "dir" && depth < 3) out = out.concat(await walk(it.path, depth + 1));
+/* One request: the repository's file tree (GitHub allows ~60 such requests per hour per network
+   without signing in). The CSV files themselves come from raw.githubusercontent.com, which has no such limit. */
+async function listViaTree(info){
+  const branches = CONFIG.branch ? [CONFIG.branch] : ["main", "master"];
+  for (const br of branches) {
+    let r;
+    try { r = await fetch(`https://api.github.com/repos/${info.owner}/${info.repo}/git/trees/${encodeURIComponent(br)}?recursive=1`, {cache: "no-store"}); }
+    catch { throw new Error("No connection to GitHub."); }
+    if (r.status === 404 || r.status === 409 || r.status === 422) continue;
+    if (!r.ok) {
+      const left = r.headers.get("x-ratelimit-remaining"), reset = +r.headers.get("x-ratelimit-reset");
+      if ((r.status === 403 || r.status === 429) && left === "0") {
+        const t = reset ? new Date(reset * 1000).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"}) : "";
+        throw new Error(`GitHub's hourly limit for this internet connection has been reached${t ? `; it resets at ${t}` : ""}.`);
       }
-      return out;
-    };
-    return await walk(CONFIG.folder, 0);
+      throw new Error(`GitHub answered with error ${r.status}.`);
+    }
+    const data = await r.json(), pre = CONFIG.folder + "/";
+    return (data.tree || []).filter(it => it.type === "blob" && it.path.startsWith(pre) && /\.(csv|tsv|txt)$/i.test(it.path))
+      .map(it => ({path: it.path, url: `https://raw.githubusercontent.com/${info.owner}/${info.repo}/${encodeURIComponent(br)}/${encPath(it.path)}`}));
   }
-  /* Not on github.io (e.g. testing on your own computer): use sets/index.json, a list of file paths inside "sets". */
+  throw new Error(`The repository “${info.owner}/${info.repo}” wasn't found. Check that it is public.`);
+}
+/* Optional list of files, sets/index.json (paths inside "sets"); used when GitHub's file list can't be read. */
+async function listViaIndex(){
   const r = await fetch(CONFIG.folder + "/index.json", {cache: "no-store"});
   if (!r.ok) throw new Error("no index");
   return (await r.json()).map(f => ({path: CONFIG.folder + "/" + f, url: encPath(CONFIG.folder + "/" + f)}));
+}
+async function listRemote(){
+  const info = repoInfo();
+  if (!info) return await listViaIndex();
+  try { return await listViaTree(info); }
+  catch (e) { try { return await listViaIndex(); } catch { throw e; } }
 }
 const Store = {
   mode: "loading", sets: [], local: [], remote: [], note: "", busy: false,
@@ -354,9 +368,10 @@ const Store = {
       this.remote = loaded;
       try { localStorage.setItem(LS_REMOTE, JSON.stringify(loaded)); } catch {}
     } catch (e) {
+      const why = (e && e.message) || "";
       this.note = this.remote.length
-        ? "Couldn't check GitHub for changes right now. Showing the sets loaded last time."
-        : (repoInfo() ? "Couldn't load the shared sets from GitHub. Check your connection and tap Refresh." : "");
+        ? `Couldn't check GitHub for changes. ${why} Showing the sets loaded last time.`
+        : (repoInfo() ? `Couldn't load the shared sets from GitHub. ${why || "Check your connection."} Then tap Refresh.` : "");
     }
     this.busy = false; this.merge();
     if (S.screen === "set" && !curSet()) S.screen = "home";
@@ -378,9 +393,18 @@ function dbError(e){
 }
 
 /* ---------- state ---------- */
-const S = { screen: "home", setId: null, dir: "ab", sess: null, modal: null, result: null, sel: null, combo: null };
+const S = { screen: "home", setId: null, dir: "ab", sess: null, modal: null, result: null, sel: null, combo: null, sample: null };
 const COMBO = "__combo";
-const curSet = () => S.setId === COMBO ? S.combo : Store.get(S.setId);
+const SAMPLE = "__sample", SAMPLE_N = 20;
+const curSet = () => S.setId === COMBO ? S.combo : S.setId === SAMPLE ? S.sample : Store.get(S.setId);
+/* a practice set of SAMPLE_N random cards drawn from a set or a combined practice */
+function drawSample(src){
+  const cards = shuffle(src.cards).slice(0, SAMPLE_N).map(c => ({...c,
+    la: c.la || src.labelA, lb: c.lb || src.labelB, sa: c.sa || src.styleA || "text", sb: c.sb || src.styleB || "text"}));
+  return {id: SAMPLE, name: `${cards.length} random words`, cards, labelA: src.labelA, labelB: src.labelB,
+    styleA: src.styleA, styleB: src.styleB, srcId: src.id, srcName: src.id === COMBO ? src.parts.join(" + ") : src.name};
+}
+const sampleSource = () => S.sample && (S.sample.srcId === COMBO ? S.combo : Store.get(S.sample.srcId));
 function buildCombo(ids){
   const sets = ids.map(id => Store.get(id)).filter(Boolean);
   const seen = new Set(), cards = [];
@@ -423,6 +447,7 @@ const IC = {
   spell: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
   left: '<svg width="44" height="44" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 12l8.5-8v5H21v6h-9.5v5z"/></svg>',
   right: '<svg width="44" height="44" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M21 12l-8.5-8v5H3v6h9.5v5z"/></svg>',
+  dice: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>',
   test: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12l3 3 5-6"/></svg>'
 };
 const MODE_NAMES = {cards: "Cards", match: "Matching", spell: "Spelling", test: "Test"};
@@ -484,10 +509,13 @@ function vSet(){
   const distinct = S.dir === "mix" ? Math.min(distinctIn("ab"), distinctIn("ba")) : distinctIn(S.dir);
   const mode = (k, d, ok, why) => `<button class="mode" data-act="start" data-mode="${k}" ${ok ? "" : "disabled"}>
       <span class="ic">${IC[k]}</span><span><div class="mt">${MODE_NAMES[k]}</div><div class="md">${ok ? d : why}</div></span></button>`;
-  const isCombo = s.id === COMBO, ro = isCombo || s.remote;
-  return `${bar(`<button class="link" data-act="home">‹ Sets</button>`, "", ro ? "" : `<button class="link" data-act="rename">Rename</button>`)}
+  const isSample = s.id === SAMPLE, isCombo = s.id === COMBO, ro = isCombo || isSample || s.remote;
+  return `${bar(isSample ? `<button class="link" data-act="sampleBack">‹ Back</button>` : `<button class="link" data-act="home">‹ Sets</button>`, "", ro ? "" : `<button class="link" data-act="rename">Rename</button>`)}
     <div class="setname" dir="auto">${esc(s.name)}</div>
     <div class="sub">${n} cards${s.remote ? ` · shared${s.group ? ` · ${esc(s.group)}` : ""}` : ""}${isCombo ? ` from ${s.parts.length} sets:<div class="parts">${s.parts.map(x => `<span dir="auto">${esc(x)}</span>`).join("")}</div>` : ""}</div>
+    ${isSample ? `<div class="sub" style="margin-top:-14px">Drawn from <span dir="auto">${esc(s.srcName)}</span></div>
+      <button class="btn" data-act="sampleNew" style="margin-bottom:18px">${IC.dice} Draw ${SAMPLE_N} new words</button>`
+      : n > SAMPLE_N ? `<button class="btn" data-act="sampleGo" style="margin-bottom:18px">${IC.dice} Practise ${SAMPLE_N} random words</button>` : ""}
     <div class="seg">
       <button class="${S.dir === "ab" ? "on" : ""}" data-act="dir" data-dir="ab">${esc(s.labelA)} → ${esc(s.labelB)}</button>
       <button class="${S.dir === "ba" ? "on" : ""}" data-act="dir" data-dir="ba">${esc(s.labelB)} → ${esc(s.labelA)}</button>
@@ -743,6 +771,9 @@ async function importFiles(files){
 const ACT = {
   import: () => { const f = $("#file"); f.value = ""; f.click(); },
   refresh: () => Store.refresh(),
+  sampleGo: () => { const src = curSet(); if (!src) return; S.sample = drawSample(src); S.setId = SAMPLE; render(); window.scrollTo(0, 0); },
+  sampleNew: () => { const src = sampleSource(); if (!src) { S.screen = "home"; render(); return; } S.sample = drawSample(src); render(); toast(`${S.sample.cards.length} new words drawn`); },
+  sampleBack: () => { S.setId = S.sample ? S.sample.srcId : null; S.screen = curSet() ? "set" : "home"; render(); window.scrollTo(0, 0); },
   combineStart: () => { S.sel = new Set(); render(); window.scrollTo(0, 0); },
   combineCancel: () => { S.sel = null; render(); },
   toggleSel: el => { const id = el.dataset.id; S.sel.has(id) ? S.sel.delete(id) : S.sel.add(id); render(); },
